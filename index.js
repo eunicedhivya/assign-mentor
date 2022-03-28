@@ -36,8 +36,6 @@ app.get("/students", async function (request, response) {
     .collection("students") //Collection Name
     .find({})
     .toArray();
-
-  //   console.log("result", result);
   response.send(result);
 });
 app.get("/unassignedstudents", async function (request, response) {
@@ -47,8 +45,6 @@ app.get("/unassignedstudents", async function (request, response) {
     .find({ mentor_id: "" })
     .toArray();
 
-  //   console.log("result", result);
-  // response.send(result);
   result
     ? response.send(result)
     : response.status(404).send({
@@ -62,7 +58,7 @@ app.post("/students", async function (request, response) {
     .db(DB_NAME) //DB Name
     .collection("students") //Collection Name
     .insertMany(newStudent);
-  //   console.log("result", result);
+
   response.send(result);
 });
 
@@ -75,8 +71,6 @@ app.get("/students/:id", async function (request, response) {
     .collection("students") //Collection Name
     .findOne({ _id: ObjectId(id) });
 
-  console.log(student);
-
   student
     ? response.send(student)
     : response.status(404).send({
@@ -85,28 +79,22 @@ app.get("/students/:id", async function (request, response) {
 });
 
 app.put("/students/:id", async function (request, response) {
-  // const { id } = request.params;
   const updateData = request.body;
   const result = await client
     .db(DB_NAME) //DB Name
     .collection("students")
     .updateOne({ _id: ObjectId(request.params.id) }, { $set: updateData });
 
-  console.log("result", result);
   response.send(result);
 });
 
 app.delete("/students/:id", async function (request, response) {
   const { id } = request.params;
 
-  console.log(id, typeof id);
-
   const result = await client
     .db(DB_NAME) //DB Name
     .collection("students") //Collection Name
     .deleteOne({ _id: ObjectId(id) });
-
-  console.log(result);
 
   result
     ? response.send(result)
@@ -122,7 +110,6 @@ app.get("/mentors", async function (request, response) {
     .find({})
     .toArray();
 
-  //   console.log("result", result);
   response.send(result);
 });
 
@@ -132,19 +119,17 @@ app.post("/mentors", async function (request, response) {
     .db(DB_NAME) //DB Name
     .collection("mentors") //Collection Name
     .insertMany(newStudent);
-  //   console.log("result", result);
+
   response.send(result);
 });
 
 app.put("/mentors/:id", async function (request, response) {
-  // const { id } = request.params;
   const updateData = request.body;
   const result = await client
     .db(DB_NAME) //DB Name
     .collection("mentors")
     .updateOne({ _id: ObjectId(request.params.id) }, { $set: updateData });
 
-  console.log("result", result);
   response.send(result);
 });
 
