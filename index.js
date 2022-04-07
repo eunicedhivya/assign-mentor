@@ -2,6 +2,7 @@ import express from "express";
 import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv";
 import cors from "cors";
+import client from "./db.js";
 
 dotenv.config();
 // console.log(process.env.MONGO_URL);
@@ -13,23 +14,28 @@ app.use(express.json());
 
 // Port for localhost
 const PORT = process.env.PORT;
-const MONGO_URL = process.env.MONGO_URL;
+// const MONGO_URL = process.env.MONGO_URL;
+
+// const DB_NAME = "assignmentor";
+
+// async function createConnection() {
+//   const client = new MongoClient(MONGO_URL);
+//   await client.connect();
+//   console.log("MongoDB connected...");
+//   return client;
+// }
+
+// const client = await createConnection();
 
 const DB_NAME = "assignmentor";
 
-async function createConnection() {
-  const client = new MongoClient(MONGO_URL);
-  await client.connect();
-  console.log("MongoDB connected...");
-  return client;
-}
-
-const client = await createConnection();
-
 app.get("/", function (request, response) {
-  response.send("Assign Mentor API");
+  response.send({
+    msg: "Assign Mentor API",
+  });
 });
 
+// Get all students
 app.get("/students", async function (request, response) {
   const result = await client
     .db(DB_NAME) //DB Name
@@ -38,6 +44,8 @@ app.get("/students", async function (request, response) {
     .toArray();
   response.send(result);
 });
+
+// Get all unassigned students
 app.get("/unassignedstudents", async function (request, response) {
   const result = await client
     .db(DB_NAME) //DB Name
@@ -52,6 +60,7 @@ app.get("/unassignedstudents", async function (request, response) {
       });
 });
 
+// Add a New Student
 app.post("/students", async function (request, response) {
   const newStudent = request.body;
   const result = await client
@@ -62,6 +71,7 @@ app.post("/students", async function (request, response) {
   response.send(result);
 });
 
+// Get a specific student detail using ID
 app.get("/students/:id", async function (request, response) {
   const { id } = request.params;
 
@@ -78,6 +88,7 @@ app.get("/students/:id", async function (request, response) {
       });
 });
 
+// Edit a student by ID
 app.put("/students/:id", async function (request, response) {
   const updateData = request.body;
   const result = await client
@@ -88,6 +99,7 @@ app.put("/students/:id", async function (request, response) {
   response.send(result);
 });
 
+// Delete a student by ID
 app.delete("/students/:id", async function (request, response) {
   const { id } = request.params;
 
@@ -103,6 +115,7 @@ app.delete("/students/:id", async function (request, response) {
       });
 });
 
+// Get all existing Mentors
 app.get("/mentors", async function (request, response) {
   const result = await client
     .db(DB_NAME) //DB Name
@@ -110,9 +123,14 @@ app.get("/mentors", async function (request, response) {
     .find({})
     .toArray();
 
-  response.send(result);
+  result
+    ? response.send(result)
+    : response.status(404).send({
+        msg: "No result Found",
+      });
 });
 
+// Add a New Mentor
 app.post("/mentors", async function (request, response) {
   const newStudent = request.body;
   const result = await client
@@ -123,6 +141,7 @@ app.post("/mentors", async function (request, response) {
   response.send(result);
 });
 
+// Edit a mentor by their ID
 app.put("/mentors/:id", async function (request, response) {
   const updateData = request.body;
   const result = await client
@@ -133,6 +152,7 @@ app.put("/mentors/:id", async function (request, response) {
   response.send(result);
 });
 
+// Delete a mentor by their ID
 app.delete("/mentors/:id", async function (request, response) {
   const { id } = request.params;
 
@@ -152,6 +172,7 @@ app.delete("/mentors/:id", async function (request, response) {
       });
 });
 
+// Get a specific mentor details based on their ID
 app.get("/mentors/:id", async function (request, response) {
   const { id } = request.params;
 
@@ -167,6 +188,26 @@ app.get("/mentors/:id", async function (request, response) {
     ? response.send(mentor)
     : response.status(404).send({
         msg: "No mentor Found",
+      });
+});
+
+// Get all students assigned to a specific mentor
+app.get("/assignedstudents/:id", async function (request, response) {
+  const { id } = request.params;
+
+  console.log(id);
+  const students = await client
+    .db(DB_NAME) //DB Name
+    .collection("students") //Collection Name
+    .find({ mentor_id: id })
+    .toArray();
+
+  console.log(students);
+
+  students
+    ? response.send(students)
+    : response.status(404).send({
+        msg: "No Students Found",
       });
 });
 
